@@ -1,6 +1,5 @@
 package main;
 import customer.Customer;
-
 import java.util.Scanner;
 
 public class Main {
@@ -38,11 +37,16 @@ public class Main {
         boolean found = false;
 
         if (customers != null) {
-            for (int i = 0; i < customers.length; i++) {
-                if (customers[i] != null) {
-                    customers[i].creditIn(minNumber, maxNumber);
-                    found = true;
+            for (Customer customer : customers) {
+                if (customer != null) {
+                    if(minNumber <= Long.parseLong(customer.getCreditNumber()) && maxNumber >= Long.parseLong(customer.getCreditNumber())){
+                        customer.showAllData();
+                        found = true;
+                    }
                 }
+            }
+            if (!found) {
+                System.out.println("No customer found with the credit card: ");
             }
         } else {
             System.out.println("The customers array is null.");

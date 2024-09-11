@@ -1,4 +1,5 @@
 package customer;
+
 import java.util.Scanner;
 
 public class Customer {
@@ -34,57 +35,75 @@ public class Customer {
         this.creditNumber = "";
         this.bonus = 0;
     }
+
     public int getId() {
         return id;
     }
+
     public void setId(int id) {
         this.id = id;
     }
+
     public String getSurname() {
         return surname;
     }
+
     public void setSurname(String surname) {
         this.surname = surname;
     }
+
     public String getFirstName() {
         return firstName;
     }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
+
     public String getLastName() {
         return lastName;
     }
+
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
+
     public String getAddress() {
         return address;
     }
+
     public void setAddress(String address) {
         this.address = address;
     }
+
     public String getPhone() {
         return phone;
     }
+
     public void setPhone(String phone) {
         this.phone = phone;
     }
+
     public String getEmail() {
         return email;
     }
+
     public void setEmail(String email) {
         this.email = email;
     }
+
     public String getCreditNumber() {
         return creditNumber;
     }
+
     public void setCreditNumber(String creditNumber) {
         this.creditNumber = creditNumber;
     }
+
     public double getBonus() {
         return bonus;
     }
+
     public void setBonus(double bonus) {
         this.bonus = bonus;
     }
@@ -130,22 +149,35 @@ public class Customer {
         System.out.println("\nBonus: " + bonus);
     }
 
-    public void exactName(String name){
-        if(name.equals(this.firstName)){
-            this.showAllData();
-        }
+    @java.lang.Override
+    public String toString() {
+        return "Customer{" +
+                "id=" + id +
+                ", surname='" + surname + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", address='" + address + '\'' +
+                ", phone='" + phone + '\'' +
+                ", email='" + email + '\'' +
+                ", creditNumber='" + creditNumber + '\'' +
+                ", bonus=" + bonus +
+                '}';
     }
 
-    public void creditIn(Long min, Long max){
-        if(min <= Long.parseLong(this.creditNumber) && max >= Long.parseLong(this.creditNumber)){
-            this.showAllData();
-        }
-    }
+    //    public void exactName(String name){
+//        if(name.equals(this.firstName)){
+//            this.showAllData();
+//        }
+//    }
+//
+//    public void creditIn(Long min, Long max){
+//        if(min <= Long.parseLong(this.creditNumber) && max >= Long.parseLong(this.creditNumber)){
+//            this.showAllData();
+//        }
+//    }
     public void emptyBonus(){
         if(this.bonus == 0){
             this.showAllData();
         }
     }
 }
-
-
