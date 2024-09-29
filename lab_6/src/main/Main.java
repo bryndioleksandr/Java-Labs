@@ -1,23 +1,26 @@
 package main;
+
 import customer.Customer;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 import java.io.*;
 
 public class Main {
     final int MAX_SIZE = 100;
 
-    public Customer[] createInitialCustomers() {
-        Customer[] customers = new Customer[3];
+    public List<Customer> createInitialCustomers() {
+        List<Customer> customers = new ArrayList<>();
 
-        customers[0] = new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "1111-2222-3333");
-        customers[1] = new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "4444-5555-6666");
-        customers[2] = new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "7777-8888-9999");
+        customers.add(new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "1111-2222-3333"));
+        customers.add(new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "4444-5555-6666"));
+        customers.add(new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "7777-8888-9999"));
 
         return customers;
     }
 
-    public void checkEmptyBonus(Customer[] customers) {
+    public void checkEmptyBonus(List<Customer> customers) {
         if (customers != null) {
             for (Customer customer : customers) {
                 if (customer != null) {
@@ -25,11 +28,11 @@ public class Main {
                 }
             }
         } else {
-            System.out.println("The customers array is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public void checkCreditInterval(Customer[] customers) {
+    public void checkCreditInterval(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
 
         System.out.print("Enter credit interval (first min and then max): ");
@@ -57,11 +60,11 @@ public class Main {
                 System.out.println("No customer found within the credit interval.");
             }
         } else {
-            System.out.println("The customers array is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public void findByName(Customer[] customers) {
+    public void findByName(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer first name: ");
 
@@ -79,59 +82,49 @@ public class Main {
                 System.out.println("No customer found with the name: " + name);
             }
         } else {
-            System.out.println("The customers array is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public Customer[] deleteUser(Customer[] customers) {
+    public List<Customer> deleteUser(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer's first name to delete: ");
 
         String name = scanner.nextLine();
         int count = 0;
 
-        for (Customer customer : customers) {
-            if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
-                count++;
+        if (customers != null) {
+            for (Customer customer : customers) {
+                if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
+                    count++;
+                }
             }
-        }
 
-        if (count == 0) {
-            System.out.println("No customer found with the name: " + name);
-            return customers;
-        }
-
-        Customer[] newCustomers = new Customer[customers.length - count];
-        for (int i = 0, k = 0; i < customers.length; i++) {
-            if (customers[i] != null && name.equalsIgnoreCase(customers[i].getFirstName())) {
-                continue;
+            if (count == 0) {
+                System.out.println("No customer found with the name: " + name);
+                return customers;
             }
-            newCustomers[k++] = customers[i];
-        }
 
-        System.out.println(count + " customer(s) deleted.");
-        return newCustomers;
+            customers.removeIf(customer -> customer != null && name.equalsIgnoreCase(customer.getFirstName()));
+            System.out.println(count + " customer(s) deleted.");
+        }
+        return customers;
     }
 
-    public Customer[] addUser(Customer[] customers) {
-        if (customers.length >= MAX_SIZE) {
-            System.out.println("The array has reached its maximum size of " + MAX_SIZE + " customers.");
+    public List<Customer> addUser(List<Customer> customers) {
+        if (customers.size() >= MAX_SIZE) {
+            System.out.println("The list has reached its maximum size of " + MAX_SIZE + " customers.");
             return customers;
         }
 
-        Customer[] newCustomers = new Customer[customers.length + 1];
         Customer customer = new Customer();
         customer.inputData();
-
-        for (int i = 0; i < customers.length; i++) {
-            newCustomers[i] = customers[i];
-        }
-        newCustomers[newCustomers.length - 1] = customer;
+        customers.add(customer);
         System.out.println("Customer added successfully.");
-        return newCustomers;
+        return customers;
     }
 
-    public void saveCustomersToFile(Customer[] customers) {
+    public void saveCustomersToFile(List<Customer> customers) {
         String filename = "customers.dat";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(customers);
@@ -142,29 +135,28 @@ public class Main {
         }
     }
 
-    public Customer[] loadCustomersFromFile() {
+    public List<Customer> loadCustomersFromFile() {
         String filename = "customers.dat";
         File file = new File(filename);
         if (!file.exists()) {
-            Customer[] initialCustomers = createInitialCustomers();
+            List<Customer> initialCustomers = createInitialCustomers();
             saveCustomersToFile(initialCustomers);
             return initialCustomers;
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            Customer[] customers = (Customer[]) ois.readObject();
-            return customers;
+            return (List<Customer>) ois.readObject();
         } catch (Exception ex) {
             System.out.println("Got exception during file reading");
             ex.printStackTrace();
-            Customer[] initialCustomers = createInitialCustomers();
+            List<Customer> initialCustomers = createInitialCustomers();
             saveCustomersToFile(initialCustomers);
             return initialCustomers;
         }
     }
 
-    public void showAllCustomers(Customer[] customers) {
-        if (customers == null || customers.length == 0) {
+    public void showAllCustomers(List<Customer> customers) {
+        if (customers == null || customers.isEmpty()) {
             System.out.println("No customers to display.");
             return;
         }
@@ -177,7 +169,7 @@ public class Main {
 
     public static void main(String[] args) {
         Main main = new Main();
-        Customer[] customers = main.loadCustomersFromFile();
+        List<Customer> customers = main.loadCustomersFromFile();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {

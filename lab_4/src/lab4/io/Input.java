@@ -36,8 +36,7 @@ public class Input implements DoubleArrayReader {
 
     @Override
     public double[][] readTwoDimensionalArray(File file) {
-        // Реалізація методу для зчитування двовимірного масиву з файлу
-        // Можна залишити це пустим або додати реальну реалізацію
+
         return null;
     }
 
