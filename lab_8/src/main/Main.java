@@ -5,110 +5,71 @@ import customer.Customer;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Main {
     final int MAX_SIZE = 100;
 
     public List<Customer> createInitialCustomers() {
-        List<Customer> customers = new ArrayList<>();
-
-        customers.add(new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "1111-2222-3333"));
-        customers.add(new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "4444-5555-6666"));
-        customers.add(new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "7777-8888-9999"));
-
-        return customers;
+        return new ArrayList<>(List.of(
+                new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "111122223333"),
+                new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "444455556666"),
+                new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "777788889999")
+        ));
     }
 
     public void checkEmptyBonus(List<Customer> customers) {
-        if (customers != null) {
-            for (Customer customer : customers) {
-                if (customer != null) {
-                    customer.emptyBonus();
-                }
-            }
-        } else {
-            System.out.println("The customers list is null.");
-        }
+        customers.stream()
+                .filter(customer -> customer != null && customer.getBonus() == 0)
+                .forEach(Customer::showAllData);
     }
 
     public void checkCreditInterval(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
-
-        System.out.print("Enter credit interval (first min and then max): ");
+        System.out.print("Enter credit interval (min max): ");
         Long minNumber = scanner.nextLong();
-        scanner.nextLine();
         Long maxNumber = scanner.nextLong();
-        scanner.nextLine();
-        boolean found = false;
 
-        if (customers != null) {
-            for (Customer customer : customers) {
-                if (customer != null) {
+        customers.stream()
+                .filter(customer -> {
                     try {
                         Long credit = Long.parseLong(customer.getCreditNumber());
-                        if (minNumber <= credit && maxNumber >= credit) {
-                            customer.showAllData();
-                            found = true;
-                        }
+                        return credit >= minNumber && credit <= maxNumber;
                     } catch (NumberFormatException e) {
                         System.out.println("Invalid credit number format for customer ID: " + customer.getId());
+                        return false;
                     }
-                }
-            }
-            if (!found) {
-                System.out.println("No customer found within the credit interval.");
-            }
-        } else {
-            System.out.println("The customers list is null.");
-        }
+                })
+                .forEach(Customer::showAllData);
     }
 
     public void findByName(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer first name: ");
-
         String name = scanner.nextLine();
-        boolean found = false;
 
-        if (customers != null) {
-            for (Customer customer : customers) {
-                if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
-                    customer.showAllData();
-                    found = true;
-                }
-            }
-            if (!found) {
-                System.out.println("No customer found with the name: " + name);
-            }
-        } else {
-            System.out.println("The customers list is null.");
-        }
+        customers.stream()
+                .filter(customer -> customer != null && customer.getFirstName().equalsIgnoreCase(name))
+                .forEach(Customer::showAllData);
     }
 
     public List<Customer> deleteUser(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer's first name to delete: ");
-
         String name = scanner.nextLine();
-        int count = 0;
 
-        if (customers != null) {
-            for (Customer customer : customers) {
-                if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
-                    count++;
-                }
-            }
+        List<Customer> filteredCustomers = customers.stream()
+                .filter(customer -> customer != null && !customer.getFirstName().equalsIgnoreCase(name))
+                .collect(Collectors.toList());
 
-            if (count == 0) {
-                System.out.println("No customer found with the name: " + name);
-                return customers;
-            }
-
-            customers.removeIf(customer -> customer != null && name.equalsIgnoreCase(customer.getFirstName()));
-            System.out.println(count + " customer(s) deleted.");
+        if (filteredCustomers.size() == customers.size()) {
+            System.out.println("No customer found with the name: " + name);
+        } else {
+            System.out.println((customers.size() - filteredCustomers.size()) + " customer(s) deleted.");
         }
-        return customers;
+        return filteredCustomers;
     }
 
     public List<Customer> addUser(List<Customer> customers) {
@@ -124,52 +85,19 @@ public class Main {
         return customers;
     }
 
-    public void saveCustomersToFile(List<Customer> customers) {
-        String filename = "customers.dat";
-        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
-            oos.writeObject(customers);
-            System.out.println("Customers data has been updated in the file.");
-        } catch (Exception ex) {
-            System.out.println("Got exception during file writing");
-            ex.printStackTrace();
-        }
-    }
-
-    public List<Customer> loadCustomersFromFile() {
-        String filename = "customers.dat";
-        File file = new File(filename);
-        if (!file.exists()) {
-            List<Customer> initialCustomers = createInitialCustomers();
-            saveCustomersToFile(initialCustomers);
-            return initialCustomers;
-        }
-
-        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (List<Customer>) ois.readObject();
-        } catch (Exception ex) {
-            System.out.println("Got exception during file reading");
-            ex.printStackTrace();
-            List<Customer> initialCustomers = createInitialCustomers();
-            saveCustomersToFile(initialCustomers);
-            return initialCustomers;
-        }
-    }
-
     public void showAllCustomers(List<Customer> customers) {
         if (customers == null || customers.isEmpty()) {
             System.out.println("No customers to display.");
             return;
         }
-        for (Customer customer : customers) {
-            if (customer != null) {
-                customer.showAllData();
-            }
-        }
+        customers.stream()
+                .filter(Objects::nonNull)
+                .forEach(Customer::showAllData);
     }
 
     public static void main(String[] args) {
         Main main = new Main();
-        List<Customer> customers = main.loadCustomersFromFile();
+        List<Customer> customers = main.createInitialCustomers();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -182,15 +110,8 @@ public class Main {
             System.out.println("5 - Add customer");
             System.out.println("6 - Exit");
             System.out.print("Enter your choice: ");
-            int choice;
-            try {
-                choice = scanner.nextInt();
-                scanner.nextLine();
-            } catch (Exception e) {
-                System.out.println("Invalid input. Please enter a number between 0 and 6.");
-                scanner.nextLine();
-                continue;
-            }
+            int choice = scanner.nextInt();
+            scanner.nextLine();
 
             switch (choice) {
                 case 0:
@@ -207,15 +128,12 @@ public class Main {
                     break;
                 case 4:
                     customers = main.deleteUser(customers);
-                    main.saveCustomersToFile(customers);
                     break;
                 case 5:
                     customers = main.addUser(customers);
-                    main.saveCustomersToFile(customers);
                     break;
                 case 6:
                     System.out.println("Exiting program.");
-                    scanner.close();
                     System.exit(0);
                 default:
                     System.out.println("Invalid choice. Please enter a number between 0 and 6.");
