@@ -3,10 +3,7 @@ package main;
 import customer.Customer;
 
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Scanner;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -14,9 +11,9 @@ public class Main {
 
     public List<Customer> createInitialCustomers() {
         return new ArrayList<>(List.of(
-                new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "111122223333"),
-                new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "444455556666"),
-                new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "777788889999")
+                new Customer(1, "Smith", "John", "Doe", 2005, "123 Street", "123-4567", "john@example.com", "111122223333", 245),
+                new Customer(2, "Johnson", "Emily", "White", 2006, "456 Avenue", "234-5678", "emily@example.com", "444455556666", 500),
+                new Customer(3, "Williams", "David", "Brown", 2007, "789 Boulevard", "345-6789", "david@example.com", "777788889999", 500)
         ));
     }
 
@@ -54,6 +51,39 @@ public class Main {
                 .filter(customer -> customer != null && customer.getFirstName().equalsIgnoreCase(name))
                 .forEach(Customer::showAllData);
     }
+
+    public void sortedByBonus(List<Customer> customers) {
+        customers.stream()
+                .filter(customer -> customer != null && customer.getBonus() > 0)
+                .sorted(Comparator.comparingDouble(Customer::getBonus)
+                        .thenComparing(Customer::getSurname)
+                        .thenComparing(Customer::getFirstName))
+                .forEach(Customer::showAllData);
+    }
+
+    public void listOfYears(List<Customer> customers) {
+        customers.stream()
+                .map(customer -> customer.getSurname() + " " + customer.getFirstName() + ": " + customer.getBirthYear())
+                .distinct()
+                .forEach(System.out::println);
+    }
+
+    public void mostOfBonuses(List<Customer> customers) {
+        Map<Integer, Customer> maxBonusCustomers = customers.stream()
+                .collect(Collectors.groupingBy(
+                        Customer::getBirthYear,
+                        Collectors.collectingAndThen(
+                                Collectors.maxBy(Comparator.comparingDouble(Customer::getBonus)),
+                                Optional::get
+                        )
+                ));
+
+        maxBonusCustomers.forEach((year, customer) -> {
+            System.out.println("\nYear of Birth: " + year);
+            customer.showAllData();
+        });
+    }
+
 
     public List<Customer> deleteUser(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
@@ -95,6 +125,7 @@ public class Main {
                 .forEach(Customer::showAllData);
     }
 
+
     public static void main(String[] args) {
         Main main = new Main();
         List<Customer> customers = main.createInitialCustomers();
@@ -106,9 +137,12 @@ public class Main {
             System.out.println("1 - Find customer by name");
             System.out.println("2 - Check credit cards");
             System.out.println("3 - Check empty bonuses");
-            System.out.println("4 - Delete customer");
-            System.out.println("5 - Add customer");
-            System.out.println("6 - Exit");
+            System.out.println("4 - Sort by bonuses");
+            System.out.println("5 - List of years");
+            System.out.println("6 - Most of bonuses for each birth year");
+            System.out.println("7 - Add customer");
+            System.out.println("8 - Delete customer");
+            System.out.println("9 - Exit");
             System.out.print("Enter your choice: ");
             int choice = scanner.nextInt();
             scanner.nextLine();
@@ -127,12 +161,21 @@ public class Main {
                     main.checkEmptyBonus(customers);
                     break;
                 case 4:
-                    customers = main.deleteUser(customers);
+                    main.sortedByBonus(customers);
                     break;
                 case 5:
-                    customers = main.addUser(customers);
+                    main.listOfYears(customers);
                     break;
                 case 6:
+                    main.mostOfBonuses(customers);
+                    break;
+                case 7:
+                    customers = main.addUser(customers);
+                    break;
+                case 8:
+                    customers = main.deleteUser(customers);
+                    break;
+                case 9:
                     System.out.println("Exiting program.");
                     System.exit(0);
                 default:
