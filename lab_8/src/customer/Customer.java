@@ -15,16 +15,6 @@ public class Customer implements Serializable {
     private String email;
     private String creditNumber;
     private double bonus;
-    private int birthYear;
-
-    public int getBirthYear() {
-        return birthYear;
-    }
-
-    public void setBirthYear(int birthYear) {
-        this.birthYear = birthYear;
-    }
-
     public Customer(int id, String surname, String firstName, String lastName, String address, String phone, String email, String creditNumber) {
         this.id = id;
         this.surname = surname;

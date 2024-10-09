@@ -1,72 +1,79 @@
 package main;
 
 import customer.Customer;
+
 import java.io.*;
-import java.util.HashSet;
-import java.util.Scanner;
-import java.util.Set;
-import java.util.List;
 import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
+    final int MAX_SIZE = 100;
 
-    public Set<Customer> createInitialCustomers() {
-        Set<Customer> customers = new HashSet<>();
-        customers.add(new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "111122223333"));
-        customers.add(new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "444455556666"));
-        customers.add(new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "777788889999"));
+    public List<Customer> createInitialCustomers() {
+        List<Customer> customers = new ArrayList<>();
+
+        customers.add(new Customer(1, "Smith", "John", "Doe", "123 Street", "123-4567", "john@example.com", "1111-2222-3333"));
+        customers.add(new Customer(2, "Johnson", "Emily", "White", "456 Avenue", "234-5678", "emily@example.com", "4444-5555-6666"));
+        customers.add(new Customer(3, "Williams", "David", "Brown", "789 Boulevard", "345-6789", "david@example.com", "7777-8888-9999"));
+
         return customers;
     }
 
-    public void checkEmptyBonus(Set<Customer> customers) {
+    public void checkEmptyBonus(List<Customer> customers) {
         if (customers != null) {
             for (Customer customer : customers) {
-                customer.emptyBonus();
+                if (customer != null) {
+                    customer.emptyBonus();
+                }
             }
         } else {
-            System.out.println("The customers set is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public void checkCreditInterval(Set<Customer> customers) {
+    public void checkCreditInterval(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
+
         System.out.print("Enter credit interval (first min and then max): ");
         Long minNumber = scanner.nextLong();
+        scanner.nextLine();
         Long maxNumber = scanner.nextLong();
+        scanner.nextLine();
         boolean found = false;
 
         if (customers != null) {
             for (Customer customer : customers) {
-                try {
-                    Long credit = Long.parseLong(customer.getCreditNumber());
-                    if (minNumber <= credit && maxNumber >= credit) {
-                        customer.showAllData();
-                        found = true;
+                if (customer != null) {
+                    try {
+                        Long credit = Long.parseLong(customer.getCreditNumber());
+                        if (minNumber <= credit && maxNumber >= credit) {
+                            customer.showAllData();
+                            found = true;
+                        }
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid credit number format for customer ID: " + customer.getId());
                     }
-                } catch (NumberFormatException e) {
-                    System.out.println("Invalid credit number format for customer ID: " + customer.getId());
                 }
             }
             if (!found) {
                 System.out.println("No customer found within the credit interval.");
             }
         } else {
-            System.out.println("The customers set is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public void findByName(Set<Customer> customers) {
+    public void findByName(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer first name: ");
+
         String name = scanner.nextLine();
         boolean found = false;
 
         if (customers != null) {
             for (Customer customer : customers) {
-                if (name.equalsIgnoreCase(customer.getFirstName())) {
+                if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
                     customer.showAllData();
                     found = true;
                 }
@@ -75,37 +82,38 @@ public class Main {
                 System.out.println("No customer found with the name: " + name);
             }
         } else {
-            System.out.println("The customers set is null.");
+            System.out.println("The customers list is null.");
         }
     }
 
-    public Set<Customer> deleteUser(Set<Customer> customers) {
+    public List<Customer> deleteUser(List<Customer> customers) {
         Scanner scanner = new Scanner(System.in);
         System.out.print("Enter customer's first name to delete: ");
+
         String name = scanner.nextLine();
-        Set<Customer> toRemove = new HashSet<>();
         int count = 0;
 
         if (customers != null) {
             for (Customer customer : customers) {
-                if (name.equalsIgnoreCase(customer.getFirstName())) {
-                    toRemove.add(customer);
+                if (customer != null && name.equalsIgnoreCase(customer.getFirstName())) {
                     count++;
                 }
             }
+
             if (count == 0) {
                 System.out.println("No customer found with the name: " + name);
-            } else {
-                customers.removeAll(toRemove);
-                System.out.println(count + " customer(s) deleted.");
+                return customers;
             }
+
+            customers.removeIf(customer -> customer != null && name.equalsIgnoreCase(customer.getFirstName()));
+            System.out.println(count + " customer(s) deleted.");
         }
         return customers;
     }
 
-    public Set<Customer> addUser(Set<Customer> customers) {
-        if (customers.size() >= 100) {
-            System.out.println("The set has reached its maximum size.");
+    public List<Customer> addUser(List<Customer> customers) {
+        if (customers.size() >= MAX_SIZE) {
+            System.out.println("The list has reached its maximum size of " + MAX_SIZE + " customers.");
             return customers;
         }
 
@@ -116,8 +124,8 @@ public class Main {
         return customers;
     }
 
-    public void saveCustomersToFile(Set<Customer> customers) {
-        String filename = "customers_hashset.dat";
+    public void saveCustomersToFile(List<Customer> customers) {
+        String filename = "customers.dat";
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename))) {
             oos.writeObject(customers);
             System.out.println("Customers data has been updated in the file.");
@@ -127,80 +135,41 @@ public class Main {
         }
     }
 
-    public Set<Customer> loadCustomersFromFile() {
-        String filename = "customers_hashset.dat";
+    public List<Customer> loadCustomersFromFile() {
+        String filename = "customers.dat";
         File file = new File(filename);
         if (!file.exists()) {
-            Set<Customer> initialCustomers = createInitialCustomers();
+            List<Customer> initialCustomers = createInitialCustomers();
             saveCustomersToFile(initialCustomers);
             return initialCustomers;
         }
 
         try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename))) {
-            return (Set<Customer>) ois.readObject();
+            return (List<Customer>) ois.readObject();
         } catch (Exception ex) {
             System.out.println("Got exception during file reading");
             ex.printStackTrace();
-            Set<Customer> initialCustomers = createInitialCustomers();
+            List<Customer> initialCustomers = createInitialCustomers();
             saveCustomersToFile(initialCustomers);
             return initialCustomers;
         }
     }
 
-    public void showAllCustomers(Set<Customer> customers) {
+    public void showAllCustomers(List<Customer> customers) {
         if (customers == null || customers.isEmpty()) {
             System.out.println("No customers to display.");
             return;
         }
         for (Customer customer : customers) {
-            customer.showAllData();
-        }
-    }
-
-    public void sortCustomersByBonusAndName(Set<Customer> customers) {
-        List<Customer> customerList = new ArrayList<>(customers);
-
-        customerList.sort(Comparator.comparing(Customer::getBonus)
-                .thenComparing(Customer::getSurname)
-                .thenComparing(Customer::getFirstName));
-
-        for (Customer customer : customerList) {
-            customer.showAllData();
-        }
-    }
-
-    public Set<Integer> getUniqueBirthYears(Set<Customer> customers) {
-        Set<Integer> uniqueYears = new HashSet<>();
-
-        for (Customer customer : customers) {
-            uniqueYears.add(customer.getBirthYear());
-        }
-
-        return uniqueYears;
-    }
-
-    public void getCustomerWithMaxBonusForEachYear(Set<Customer> customers) {
-        Map<Integer, Customer> maxBonusByYear = new HashMap<>();
-
-        for (Customer customer : customers) {
-            int year = customer.getBirthYear();
-
-            if (!maxBonusByYear.containsKey(year) || customer.getBonus() > maxBonusByYear.get(year).getBonus()) {
-                maxBonusByYear.put(year, customer);
+            if (customer != null) {
+                customer.showAllData();
             }
         }
-
-        for (Map.Entry<Integer, Customer> entry : maxBonusByYear.entrySet()) {
-            System.out.println("Year: " + entry.getKey());
-            entry.getValue().showAllData();
-        }
     }
-
-
 
     public static void main(String[] args) {
         Main main = new Main();
-        Set<Customer> customers = main.loadCustomersFromFile();
+        List<Customer> customers = main.loadCustomersFromFile();
 
         Scanner scanner = new Scanner(System.in);
         while (true) {
@@ -213,8 +182,15 @@ public class Main {
             System.out.println("5 - Add customer");
             System.out.println("6 - Exit");
             System.out.print("Enter your choice: ");
-            int choice = scanner.nextInt();
-            scanner.nextLine();
+            int choice;
+            try {
+                choice = scanner.nextInt();
+                scanner.nextLine();
+            } catch (Exception e) {
+                System.out.println("Invalid input. Please enter a number between 0 and 6.");
+                scanner.nextLine();
+                continue;
+            }
 
             switch (choice) {
                 case 0:
@@ -242,7 +218,7 @@ public class Main {
                     scanner.close();
                     System.exit(0);
                 default:
-                    System.out.println("Invalid choice.");
+                    System.out.println("Invalid choice. Please enter a number between 0 and 6.");
             }
         }
     }
