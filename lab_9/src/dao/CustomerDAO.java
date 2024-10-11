@@ -11,9 +11,29 @@ import java.util.ArrayList;
 import java.util.Properties;
 
 public class CustomerDAO {
+    public static final String DELETE_BY_ID = "DELETE FROM customers WHERE id = ?";
+    public static final String UPDATE_QUERY = "UPDATE customers SET surname = ?, firstname = ?, lastname = ?, birthyear = ?, address = ?, phone = ?, email = ?, creditnumber = ?, bonus = ? WHERE id = ?";
+    public static final String SELECT_BY_NAME = "SELECT * FROM customers WHERE name = ?";
+    public static final String SELECT_BY_ID = "SELECT * FROM customers WHERE id = ?";
+    public static final String SELECT_ALL = "SELECT * FROM customers";
+    public static final String INSERT_QUERY = "INSERT INTO customers(surname, firstname, lastname, birthyear, address, phone, email, creditnumber, bonus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
     private String url;
     private String username;
     private String password;
+
+    private static final String createTable = "CREATE TABLE IF NOT EXISTS customers ("
+            + "id SERIAL PRIMARY KEY, "
+            + "surname VARCHAR(100), "
+            + "firstname VARCHAR(100), "
+            + "lastname VARCHAR(100), "
+            + "birthyear INT, "
+            + "address VARCHAR(255), "
+            + "phone VARCHAR(50), "
+            + "email VARCHAR(100), "
+            + "creditnumber VARCHAR(16), "
+            + "bonus DOUBLE PRECISION"
+            + ")";
+
 
     public CustomerDAO(String propertiesFilePath) {
         getProps(propertiesFilePath);
@@ -21,7 +41,7 @@ public class CustomerDAO {
 
     private void getProps(String propertiesFilePath) {
         Properties props = new Properties();
-        try (InputStream in = Files.newInputStream(Paths.get("C:\\КН-421\\РКСЗ\\lab_9\\src\\database.properties"))) {
+        try (InputStream in = Files.newInputStream(Paths.get(propertiesFilePath))) {
             props.load(in);
             this.url = props.getProperty("url");
             this.username = props.getProperty("username");
@@ -36,21 +56,9 @@ public class CustomerDAO {
     }
 
     public int createTable() {
-        String query = "CREATE TABLE IF NOT EXISTS customers ("
-                + "id SERIAL PRIMARY KEY, "
-                + "surname VARCHAR(100), "
-                + "firstname VARCHAR(100), "
-                + "lastname VARCHAR(100), "
-                + "birthyear INT, "
-                + "address VARCHAR(255), "
-                + "phone VARCHAR(50), "
-                + "email VARCHAR(100), "
-                + "creditnumber VARCHAR(16), "
-                + "bonus DOUBLE PRECISION"
-                + ")";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement()) {
-            return stmt.executeUpdate(query);
+            return stmt.executeUpdate(createTable);
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -58,9 +66,8 @@ public class CustomerDAO {
     }
 
     public int insert(Customer c) {
-        String query = "INSERT INTO customers(surname, firstname, lastname, birthyear, address, phone, email, creditnumber, bonus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(    INSERT_QUERY)) {
             stmt.setString(1, c.getSurname());
             stmt.setString(2, c.getFirstName());
             stmt.setString(3, c.getLastName());
@@ -79,10 +86,9 @@ public class CustomerDAO {
 
     public ArrayList<Customer> select() {
         ArrayList<Customer> customers = new ArrayList<>();
-        String query = "SELECT * FROM customers";
         try (Connection conn = getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+             ResultSet rs = stmt.executeQuery(SELECT_ALL)) {
             while (rs.next()) {
                 Customer c = new Customer(
                         rs.getInt("id"),
@@ -105,9 +111,8 @@ public class CustomerDAO {
     }
 
     public Customer findById(int id) {
-        String query = "SELECT * FROM customers WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID)) {
             stmt.setInt(1, id);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -131,9 +136,8 @@ public class CustomerDAO {
     }
 
     public Customer findByName(String name) {
-        String query = "SELECT * FROM customers WHERE name = ?";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(SELECT_BY_NAME)) {
             stmt.setString(1, name);
             ResultSet rs = stmt.executeQuery();
             if (rs.next()) {
@@ -157,9 +161,8 @@ public class CustomerDAO {
     }
 
     public int update(Customer c) {
-        String query = "UPDATE customers SET surname = ?, firstname = ?, lastname = ?, birthyear = ?, address = ?, phone = ?, email = ?, creditnumber = ?, bonus = ? WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(UPDATE_QUERY)) {
             stmt.setString(1, c.getSurname());
             stmt.setString(2, c.getFirstName());
             stmt.setString(3, c.getLastName());
@@ -178,9 +181,8 @@ public class CustomerDAO {
     }
 
     public int delete(int id) {
-        String query = "DELETE FROM customers WHERE id = ?";
         try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(query)) {
+             PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID)) {
             stmt.setInt(1, id);
             return stmt.executeUpdate();
         } catch (SQLException e) {

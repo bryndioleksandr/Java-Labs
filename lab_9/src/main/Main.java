@@ -17,7 +17,7 @@ public class Main {
     private static final int EXIT = 0;
 
     public static void main(String[] args) {
-        String propertiesFilePath = "database.properties";
+            String propertiesFilePath = "C:\\КН-421\\РКСЗ\\lab_9\\src\\database.properties";
         CustomerDAO customerDAO = new CustomerDAO(propertiesFilePath);
 
         customerDAO.createTable();
