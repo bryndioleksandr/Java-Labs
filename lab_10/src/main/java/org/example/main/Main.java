@@ -1,7 +1,7 @@
-package main;
+package org.example.main;
 
-import customer.Customer;
-import dao.CustomerDAO;
+import org.example.customer.Customer;
+import org.example.dao.CustomerDAO;
 
 import java.util.ArrayList;
 import java.util.Scanner;

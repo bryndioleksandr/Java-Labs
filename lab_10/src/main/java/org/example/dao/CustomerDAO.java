@@ -1,6 +1,6 @@
-package dao;
+package org.example.dao;
 
-import customer.Customer;
+import org.example.customer.Customer;
 
 import java.io.IOException;
 import java.io.InputStream;

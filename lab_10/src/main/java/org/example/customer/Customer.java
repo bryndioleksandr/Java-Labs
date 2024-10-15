@@ -1,4 +1,4 @@
-package customer;
+package org.example.customer;
 
 import java.util.Scanner;
 
