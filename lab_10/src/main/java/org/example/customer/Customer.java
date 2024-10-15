@@ -1,14 +1,45 @@
 package org.example.customer;
 
+import jakarta.persistence.*;
+
 import java.util.Scanner;
 
+
+@Entity
+@Table(name = "customers")
 public class Customer {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private int id;
 
-
-
+    @Column(name = "surname", nullable = false)
     private String surname;
+
+    @Column(name = "first_name", nullable = false)
     private String firstName;
+
+    @Column(name = "last_name", nullable = false)
+    private String lastName;
+
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "phone")
+    private String phone;
+
+    @Column(name = "email", unique = true)
+    private String email;
+
+    @Column(name = "credit_number", unique = true)
+    private String creditNumber;
+
+    @Column(name = "birth_year")
+    private int birthYear;
+
+    @Column(name = "bonus")
+    private double bonus;
 
     public void setId(int id) {
         this.id = id;
@@ -58,17 +89,7 @@ public class Customer {
         this.bonus = bonus;
     }
 
-    private String lastName;
-    private String address;
-    private String phone;
-    private String email;
-    private String creditNumber;
 
-
-
-    private int birthYear;
-
-    private double bonus;
 
     public Customer(int id, String surname, String firstName, String lastName, int birthYear, String address, String phone, String email, String creditNumber, double bonus) {
         this.id = id;
