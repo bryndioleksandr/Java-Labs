@@ -8,186 +8,108 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
+import org.example.util.HibernateUtil;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
+
 public class CustomerDAO {
-    public static final String DELETE_BY_ID = "DELETE FROM customers WHERE id = ?";
-    public static final String UPDATE_QUERY = "UPDATE customers SET surname = ?, firstname = ?, lastname = ?, birthyear = ?, address = ?, phone = ?, email = ?, creditnumber = ?, bonus = ? WHERE id = ?";
-    public static final String SELECT_BY_NAME = "SELECT * FROM customers WHERE name = ?";
-    public static final String SELECT_BY_ID = "SELECT * FROM customers WHERE id = ?";
-    public static final String SELECT_ALL = "SELECT * FROM customers";
-    public static final String INSERT_QUERY = "INSERT INTO customers(surname, firstname, lastname, birthyear, address, phone, email, creditnumber, bonus) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
-    private String url;
-    private String username;
-    private String password;
 
-    private static final String createTable = "CREATE TABLE IF NOT EXISTS customers ("
-            + "id SERIAL PRIMARY KEY, "
-            + "surname VARCHAR(100), "
-            + "firstname VARCHAR(100), "
-            + "lastname VARCHAR(100), "
-            + "birthyear INT, "
-            + "address VARCHAR(255), "
-            + "phone VARCHAR(50), "
-            + "email VARCHAR(100), "
-            + "creditnumber VARCHAR(16), "
-            + "bonus DOUBLE PRECISION"
-            + ")";
+    public CustomerDAO() {
 
-
-    public CustomerDAO(String propertiesFilePath) {
-        getProps(propertiesFilePath);
     }
 
-    private void getProps(String propertiesFilePath) {
-        Properties props = new Properties();
-        try (InputStream in = Files.newInputStream(Paths.get(propertiesFilePath))) {
-            props.load(in);
-            this.url = props.getProperty("url");
-            this.username = props.getProperty("username");
-            this.password = props.getProperty("password");
-        } catch (IOException e) {
-            throw new RuntimeException("Error loading database properties", e);
-        }
-    }
 
-    private Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(url, username, password);
-    }
+//    public int createTable() {
+//
+//        return 0;
+//    }
 
-    public int createTable() {
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement()) {
-            return stmt.executeUpdate(createTable);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public int insert(Customer c) {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(    INSERT_QUERY)) {
-            stmt.setString(1, c.getSurname());
-            stmt.setString(2, c.getFirstName());
-            stmt.setString(3, c.getLastName());
-            stmt.setInt(4, c.getBirthYear());
-            stmt.setString(5, c.getAddress());
-            stmt.setString(6, c.getPhone());
-            stmt.setString(7, c.getEmail());
-            stmt.setString(8, c.getCreditNumber());
-            stmt.setDouble(9, c.getBonus());
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return 0;
-    }
-
-    public ArrayList<Customer> select() {
-        ArrayList<Customer> customers = new ArrayList<>();
-        try (Connection conn = getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(SELECT_ALL)) {
-            while (rs.next()) {
-                Customer c = new Customer(
-                        rs.getInt("id"),
-                        rs.getString("surname"),
-                        rs.getString("firstname"),
-                        rs.getString("lastname"),
-                        rs.getInt("birthyear"),
-                        rs.getString("address"),
-                        rs.getString("phone"),
-                        rs.getString("email"),
-                        rs.getString("creditnumber"),
-                        rs.getDouble("bonus")
-                );
-                customers.add(c);
+    public void insert(Customer c) {
+        Transaction transaction = null;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            session.save(c);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
             }
-        } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customers;
+
     }
+
+    public List<Customer> select() {
+        try(Session session = HibernateUtil.getSessionFactory().openSession()) {
+            return session.createQuery("FROM Customer", Customer.class).list();
+        }
+    }
+
 
     public Customer findById(int id) {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SELECT_BY_ID)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Customer(
-                        rs.getInt("id"),
-                        rs.getString("surname"),
-                        rs.getString("firstname"),
-                        rs.getString("lastname"),
-                        rs.getInt("birthyear"),
-                        rs.getString("address"),
-                        rs.getString("phone"),
-                        rs.getString("email"),
-                        rs.getString("creditnumber"),
-                        rs.getDouble("bonus")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Customer> query = session.createQuery("FROM Customer WHERE id = :id",
+                    Customer.class);
+            query.setParameter("id", id);
+            return query.uniqueResult();
         }
-        return null;
     }
 
-    public Customer findByName(String name) {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(SELECT_BY_NAME)) {
-            stmt.setString(1, name);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return new Customer(
-                        rs.getInt("id"),
-                        rs.getString("surname"),
-                        rs.getString("firstname"),
-                        rs.getString("lastname"),
-                        rs.getInt("birthyear"),
-                        rs.getString("address"),
-                        rs.getString("phone"),
-                        rs.getString("email"),
-                        rs.getString("creditnumber"),
-                        rs.getDouble("bonus")
-                );
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    public List<Customer> findByName(String name) {
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            Query<Customer> query = session.createQuery("FROM Customer WHERE firstName = :name",
+                    Customer.class);
+            query.setParameter("name", name);
+            return query.list();
         }
-        return null;
     }
 
     public int update(Customer c) {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(UPDATE_QUERY)) {
-            stmt.setString(1, c.getSurname());
-            stmt.setString(2, c.getFirstName());
-            stmt.setString(3, c.getLastName());
-            stmt.setInt(4, c.getBirthYear());
-            stmt.setString(5, c.getAddress());
-            stmt.setString(6, c.getPhone());
-            stmt.setString(7, c.getEmail());
-            stmt.setString(8, c.getCreditNumber());
-            stmt.setDouble(9, c.getBonus());
-            stmt.setInt(10, c.getId());
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
+        Transaction transaction = null;
+        int result = 0;
+
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+
+            session.update(c);
+
+            transaction.commit();
+            result = 1;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             e.printStackTrace();
         }
-        return 0;
+
+        return result;
     }
 
     public int delete(int id) {
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(DELETE_BY_ID)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate();
-        } catch (SQLException e) {
+        Transaction transaction = null;
+        int result = 0;
+        try (Session session = HibernateUtil.getSessionFactory().openSession()) {
+            transaction = session.beginTransaction();
+            Customer customertoDelete = session.get(Customer.class, id);
+            if(customertoDelete != null) {
+                session.delete(customertoDelete);
+                result = 1;
+            }
+            else result = 0;
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
             e.printStackTrace();
         }
-        return 0;
+        return result;
     }
+
 }

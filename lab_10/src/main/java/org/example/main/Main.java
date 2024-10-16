@@ -4,6 +4,7 @@ import org.example.customer.Customer;
 import org.example.dao.CustomerDAO;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 public class Main {
@@ -18,9 +19,8 @@ public class Main {
 
     public static void main(String[] args) {
             String propertiesFilePath = "C:\\КН-421\\РКСЗ\\lab_9\\src\\database.properties";
-        CustomerDAO customerDAO = new CustomerDAO(propertiesFilePath);
+        CustomerDAO customerDAO = new CustomerDAO();
 
-        customerDAO.createTable();
 
         Scanner scanner = new Scanner(System.in);
         int option;
@@ -37,7 +37,7 @@ public class Main {
                     System.out.println("Customer added successfully!");
                     break;
                 case SHOW_ALL_CUSTOMERS:
-                    ArrayList<Customer> customers = customerDAO.select();
+                    List<Customer> customers = customerDAO.select();
                     for (Customer c : customers) {
                         c.showAllData();
                         System.out.println("------------");
@@ -81,8 +81,10 @@ public class Main {
                     scanner.nextLine();
                     System.out.print("Enter customer name: ");
                     String name = scanner.nextLine();
-                    Customer customerByName = customerDAO.findByName(name);
-                    customerByName.showAllData();
+                    List <Customer> customerByName = customerDAO.findByName(name);
+                    for(Customer c : customerByName) {
+                        c.showAllData();
+                    }
                     break;
                 case EXIT:
                     System.out.println("Exiting...");

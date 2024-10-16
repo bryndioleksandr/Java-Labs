@@ -1,12 +1,16 @@
 package org.example.customer;
 
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.util.Scanner;
 
 
 @Entity
 @Table(name = "customers")
+@Setter
+@Getter
+@ToString
 public class Customer {
 
     @Id
@@ -41,55 +45,6 @@ public class Customer {
     @Column(name = "bonus")
     private double bonus;
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setCreditNumber(String creditNumber) {
-        this.creditNumber = creditNumber;
-    }
-
-    public void setBonus(double bonus) {
-        this.bonus = bonus;
-    }
-
-
 
     public Customer(int id, String surname, String firstName, String lastName, int birthYear, String address, String phone, String email, String creditNumber, double bonus) {
         this.id = id;
@@ -117,37 +72,6 @@ public class Customer {
         this.bonus = 0;
     }
 
-    public String getSurname() {
-        return surname;
-    }
-
-    public void setSurname(String surname) {
-        this.surname = surname;
-    }
-
-    public int getBirthYear() {
-        return birthYear;
-    }
-
-    public void setBirthYear(int birthYear) {
-        this.birthYear = birthYear;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public String getCreditNumber() {
-        return creditNumber;
-    }
-
-    public double getBonus() {
-        return bonus;
-    }
 
     public void inputData() {
         Scanner scanner = new Scanner(System.in);
