@@ -6,10 +6,11 @@ import java.net.UnknownHostException;
 import dev.entity.Customer;
 
 public class SimpleClient {
+    private static final int PORT = 1234;
 
     public static void main(String[] args) throws InterruptedException {
 
-        try (Socket socket = new Socket("localhost", 1234);
+        try (Socket socket = new Socket("localhost", PORT);
              BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
              ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
              ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());) {

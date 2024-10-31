@@ -8,8 +8,9 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class SimpleServer {
+    private static final int PORT = 1234;
     public static void main(String[] args) throws IOException {
-        try(ServerSocket server = new ServerSocket(1234)){
+        try(ServerSocket server = new ServerSocket(PORT)){
             InetAddress serverIP = InetAddress.getLocalHost();
             String startTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date());
 
